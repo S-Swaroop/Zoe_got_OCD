@@ -25,12 +25,33 @@ export const getUrl = (url) => {
 }
 
 /**
+ * @description : function to write data into a sheet
+ */
+
+const writeData = async (data) => {
+
+    const { sheets } = await authentication() ;
+
+    sheets.spreadsheets.values.append({
+        spreadsheetId: SHEETS_ID , 
+        range: 'sheet2' ,
+        valueInputOption: "USER_ENTERED" , 
+        resource : {
+            values : data
+        }
+    }, (err) => {
+        if (err) {
+            console.log(err) ;
+        } 
+    }) ; 
+
+}
+
+/**
  *  @description : function to read data from a spreadsheet and categorize them
  */
 
 const main = async () => {
-
-    let urls = [] ; 
     
     try {
 
@@ -41,114 +62,72 @@ const main = async () => {
             range: 'sheet1'
         }) ;
 
-        await sheets.spreadsheets.values.clear({
-            spreadsheetId: SHEETS_ID , 
-            range: "sheet1"
-        }) ;
+        const len = data.values.length ;
 
-        for (let i = 0 ; i < data.values.length ; i++) {
+        for (let i = 0 ; i < len ; i++) {
 
-            urls[i] = new Array(2) ;
-
-            urls[i][0] = getUrl(data.values[i][0]) ;
+            if (i == 0) {
+                data.values[i].push("CATEGORIES") ;
+                continue ;
+            }
 
             const res = await axios.get(
-                `https://api.wappalyzer.com/v2/lookup/?urls=${urls[i][0]}&recursive=false` , 
+                `https://api.wappalyzer.com/v2/lookup/?urls=${getUrl(data.values[i][0])}&recursive=false` , 
                 {
                     headers : {
                         "x-api-key" : WAPPALYZER_API_KEY
                     }
                 }
-            ).then(res => res.data[0]) ;
+            )
+            .then(res => res.data[0]) ;
+
+            let category = OTHERS.category ;
 
             if (i !== 0 && res.technologies) {
-
-                let found = false ; 
 
                 for (let j = 0 ; j < res.technologies.length ; j++) {
                     switch (res.technologies[j].slug) {
                         case SHOPIFY.slug : {
-                            urls[i][1] = SHOPIFY.category ; 
-                            found = true ;
+                            category = SHOPIFY.category ;
                             break ;
                         }
                         case MAGENTO.slug : {
-                            urls[i][1] = MAGENTO.category ;
-                            found = true ;
+                            category = MAGENTO.category ;
                             break ;
                         }
                         case WOOCOMMERCE.slug : {
-                            urls[i][1] = WOOCOMMERCE.category ;
-                            found = true ;
+                            category = WOOCOMMERCE.category ;
                             break ;
                         }
                         case BIGCOMMERCE.slug : {
-                            urls[i][1] = BIGCOMMERCE.category ;
-                            found = true ;
+                            category = BIGCOMMERCE.category ;
                             break ;
                         }
                         default : {
                             break ;
                         }
                     }
-                    if (found) {
-                        break ;
-                    }
                 }
 
-                if (!found) {
-                    urls[i][1] = OTHERS.category ; 
-                }
+                data.values[i].push(category) ;
+            
             } else {
-                urls[i][1] = NOT_WORKING.category ; 
+            
+                data.values[i].push(NOT_WORKING.category) ;
+            
             }
 
-            if (i == 0) {
-                urls[i][0] = "Websites" ;
-                urls[i][1] =  "Categories" ;
-            }
+            
 
-            sheets.spreadsheets.values.append({
-                spreadsheetId: SHEETS_ID , 
-                range: 'sheet1' ,
-                valueInputOption: "USER_ENTERED" , 
-                resource : {
-                    values : [[urls[i][0] , urls[i][1]]]  
-                }
-            }, (err) => {
-                if (err) {
-                    console.log(err) ;
-                } 
-            }) ; 
         }
+
+        await writeData(data.values) ;
+
     } catch (error) {
+
         console.error(error) ; 
+    
     }
 }
 
 main() ;
-
-// import { authentication } from './Auth/auth.js' ;
-
-// const {sheets} = await authentication() ;
-
-// const { data } = await sheets.spreadsheets.values.get({
-//     spreadsheetId: SHEETS_ID , 
-//     range: 'sheet1'
-// }) ;
-
-// for (let i = 0 ; i < 5 ; i++) {
-//     data.values[i].push("fuck") ;
-// }
-// sheets.spreadsheets.values.append({
-//     spreadsheetId: SHEETS_ID , 
-//     range: 'sheet1' ,
-//     valueInputOption: "USER_ENTERED" , 
-//     resource : {
-//         values : data.values
-//     }
-// }, (err) => {
-//     if (err) {
-//         console.log(err) ;
-//     } 
-// }) ; 
