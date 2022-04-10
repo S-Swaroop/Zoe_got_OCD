@@ -46,6 +46,6 @@
 8.  Once clicked on ‘Manage’, you will be redirected to your dashboard. Under ‘APIs & Services’ click on ‘Credentials’.
 9.  On the credentials page, click ‘Create Credentials’, then click on ‘Service Account’ in the dropdown.
 10. Enter the ‘Service name’, it can be anything you like. After entering the name click on ‘Create’.
-11. Click on the email address, a page will appear on which we have to click on ‘Keys’. Under the ‘Keys’ column, click on ‘Add key’ and then select ‘Create new key’. After selecting ‘Create new key’, a pop-up box will appear. Select ‘JSON’ and click ‘Create’. A private key for your service account will be downloaded to your machine, move it to the root directory of the project.
+11. Click on the email address, a page will appear on which we have to click on ‘Keys’. Under the ‘Keys’ column, click on ‘Add key’ and then select ‘Create new key’. After selecting ‘Create new key’, a pop-up box will appear. Select ‘JSON’ and click ‘Create’. A private key for your service account will be downloaded to your machine, move it to the Auth directory of the project.
 
 ### Link to final spreadsheet (input in sheet1, output in sheet2) : [output](https://docs.google.com/spreadsheets/d/19QSTaqQrjXHbbahd1QpM_4h1emHfFYCW7pCYbFANvoQ/edit#gid=327161312)
